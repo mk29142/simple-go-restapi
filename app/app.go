@@ -1,7 +1,6 @@
 package app
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,14 +13,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// App has router and db instances
 type App struct {
 	Router *mux.Router
-	SQL *sql.DB
 	Handler *handler.Handler
 }
 
-// Initialize initializes the app with predefined configuration
 func (a *App) Initialize() {
 	//dbName := os.Getenv("DB_NAME")
 	//dbPass := os.Getenv("DB_PASS")
@@ -34,17 +30,13 @@ func (a *App) Initialize() {
 		os.Exit(-1)
 	}
 
-	a.SQL = connection.SQL
 	a.Router = mux.NewRouter()
 	a.Handler = handler.NewHandler(connection)
 	a.setRouters(a.Handler)
 }
 
-// setRouters sets the all required routers
 func (a *App) setRouters(userHandler *handler.Handler) {
-	// Routing for handling the projects
-	a.Get("/users/{name}", a.handleRequest(userHandler.GetByID))
-
+	a.Get("/user/{name}", userHandler.GetByID)
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
@@ -57,12 +49,4 @@ func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) 
 
 func (a *App) Run(host string) {
 	log.Fatal(http.ListenAndServe(host, a.Router))
-}
-
-type RequestHandlerFunction func(w http.ResponseWriter, r *http.Request)
-
-func (a *App) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handler(w, r)
-	}
 }
