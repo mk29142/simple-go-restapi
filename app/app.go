@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -19,12 +20,16 @@ type App struct {
 }
 
 func (a *App) Initialize() {
-	//dbName := os.Getenv("DB_NAME")
-	//dbPass := os.Getenv("DB_PASS")
-	//dbHost := os.Getenv("DB_HOST")
-	//dbPort := os.Getenv("DB_PORT")
 
-	connection, err := sqldriver.ConnectSQL("localhost", "3306", "root", "", "goDB")
+	myEnv, err := godotenv.Read()
+
+	DB_HOST := myEnv["DB_HOST"]
+	DB_PORT := myEnv["DB_PORT"]
+	DB_NAME := myEnv["DB_NAME"]
+	DB_USERNAME := myEnv["DB_USERNAME"]
+	DB_PASSWORD := myEnv["DB_PASSWORD"]
+
+	connection, err := sqldriver.ConnectSQL(DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(-1)
@@ -32,11 +37,11 @@ func (a *App) Initialize() {
 
 	a.Router = mux.NewRouter()
 	a.Handler = handler.NewHandler(connection)
-	a.setRouters(a.Handler)
+	a.setRouters()
 }
 
-func (a *App) setRouters(userHandler *handler.Handler) {
-	a.Get("/user/{name}", userHandler.GetByID)
+func (a *App) setRouters() {
+	a.Get("/user/{name}", a.Handler.GetByID)
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
