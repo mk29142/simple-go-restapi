@@ -25,7 +25,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	payload, err := h.repo.GetByName(r.Context(), vars["name"])
 
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "Content not found")
+		respondWithError(w, http.StatusNotFound, err.Error())
 	} else {
 		respondWithJSON(w, http.StatusOK, payload)
 	}
