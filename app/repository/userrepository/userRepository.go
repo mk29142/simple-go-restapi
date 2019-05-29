@@ -43,7 +43,6 @@ func (m *mysqlRepo) fetch(ctx context.Context, query string, args ...interface{}
 }
 
 func (m *mysqlRepo) GetByName(ctx context.Context, name string) (*models.User, error) {
-
 	query := "Select * From Users where Name=?"
 
 	rows, err := m.fetch(ctx, query, name)
@@ -61,6 +60,19 @@ func (m *mysqlRepo) GetByName(ctx context.Context, name string) (*models.User, e
 	return payload, nil
 }
 
-func (m *mysqlRepo) Create(ctx context.Context, p *models.User) (int64, error) {
-	panic("implement me")
+func (m *mysqlRepo) Create(ctx context.Context, u *models.User) error {
+	query := "INSERT INTO Users (Name, Age, School) VALUES (?, ?, ?)"
+
+	stmt, err := m.Conn.PrepareContext(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.ExecContext(ctx, u.Name, u.Age, u.School)
+	defer stmt.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

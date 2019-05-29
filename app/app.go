@@ -20,7 +20,6 @@ type App struct {
 }
 
 func (a *App) Initialize() {
-
 	myEnv, err := godotenv.Read()
 
 	DB_HOST := myEnv["DB_HOST"]
@@ -42,6 +41,7 @@ func (a *App) Initialize() {
 
 func (a *App) setRouters() {
 	a.Get("/user/{name}", a.Handler.GetByID)
+	a.Post("/user", a.Handler.Create)
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {

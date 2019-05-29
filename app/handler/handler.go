@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"simple-go-restapi/app/models"
 	"simple-go-restapi/app/repository"
 	userRepo "simple-go-restapi/app/repository/userrepository"
 	"simple-go-restapi/app/sqldriver"
@@ -21,14 +22,24 @@ type Handler struct {
 
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-
 	payload, err := h.repo.GetByName(r.Context(), vars["name"])
 
 	if err != nil {
-		respondWithError(w, http.StatusNoContent, "Content not found")
-
+		respondWithError(w, http.StatusNotFound, "Content not found")
 	} else {
 		respondWithJSON(w, http.StatusOK, payload)
+	}
+}
+
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+	_ = json.NewDecoder(r.Body).Decode(&user)
+
+	err := h.repo.Create(r.Context(), &user)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Server Error")
+	} else {
+		respondWithJSON(w, http.StatusCreated, map[string]string{"message": "Successfully Created"})
 	}
 }
 
