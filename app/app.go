@@ -41,15 +41,15 @@ func (a *App) Initialize() {
 
 func (a *App) setRouters() {
     a.Get("/user/{name}", a.Handler.GetByID)
-    a.Post("/user", a.Handler.Create)
+    a.Put("/user", a.Handler.Create)
 }
 
 func (a *App) Get(path string, f func(w http.ResponseWriter, r *http.Request)) {
     a.Router.HandleFunc(path, f).Methods("GET")
 }
 
-func (a *App) Post(path string, f func(w http.ResponseWriter, r *http.Request)) {
-    a.Router.HandleFunc(path, f).Methods("POST")
+func (a *App) Put(path string, f func(w http.ResponseWriter, r *http.Request)) {
+    a.Router.HandleFunc(path, f).Methods("PUT")
 }
 
 func (a *App) Run(host string) {
